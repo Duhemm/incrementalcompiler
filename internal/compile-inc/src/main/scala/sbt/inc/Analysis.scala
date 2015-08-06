@@ -23,7 +23,7 @@ import java.io.File
  * These transformations are complicated by the fact that internal dependencies are expressed as source file -> source file,
  * but external dependencies are expressed as source file -> fully-qualified class name.
  */
-trait Analysis {
+trait Analysis extends sbt.incrementalcompiler.api.Analysis {
   val stamps: Stamps
   val apis: APIs
   /** Mappings between sources, classes, and binaries. */

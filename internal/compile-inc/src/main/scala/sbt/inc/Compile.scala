@@ -83,6 +83,7 @@ private final class AnalysisCallback(internalMap: File => Option[File], external
   val compilation = {
     val outputSettings = output match {
       case single: SingleOutput => Array(new OutputSetting("/", single.outputDirectory.getAbsolutePath))
+      case single: sbt.incrementalcompiler.api.SingleOutput => Array(new OutputSetting("/", single.outputDirectory.getAbsolutePath))
       case multi: MultipleOutput =>
         multi.outputGroups.map(out => new OutputSetting(out.sourceDirectory.getAbsolutePath, out.outputDirectory.getAbsolutePath))
     }
