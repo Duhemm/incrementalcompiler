@@ -16,22 +16,22 @@ abstract class SingleOutput extends Output with xsbti.compile.SingleOutput {
   def outputDirectory: File
 }
 
-/**
- * Configuration in which each output directory depends on the input directories.
- */
-abstract class MultipleOutput extends Output with xsbti.compile.MultipleOutput {
+// /**
+//  * Configuration in which each output directory depends on the input directories.
+//  */
+// abstract class MultipleOutput extends Output with xsbti.compile.MultipleOutput {
 
-  /**
-   * A mapping from `sourceDirectory` to `outputDirectory`.
-   * A mapping from A to B means that the classfiles issued from a source file in source directory A
-   * should be put in output directory B.
-   */
-  abstract class OutputGroup extends xsbti.compile.MultipleOutput.OutputGroup {
-    def sourceDirectory: File
-    def outputDirectory: File
-  }
+//   /**
+//    * A mapping from `sourceDirectory` to `outputDirectory`.
+//    * A mapping from A to B means that the classfiles issued from a source file in source directory A
+//    * should be put in output directory B.
+//    */
+//   abstract class OutputGroup extends xsbti.compile.MultipleOutput.OutputGroup {
+//     def sourceDirectory: File
+//     def outputDirectory: File
+//   }
 
-  /** All the mappings from source directory to output directory. */
-  def outputGroups(): Array[xsbti.compile.MultipleOutput.OutputGroup]
+//   /** All the mappings from source directory to output directory. */
+//   def outputGroups(): Array[xsbti.compile.MultipleOutput.OutputGroup]
 
-}
+// }

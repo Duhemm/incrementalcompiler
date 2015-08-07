@@ -2,7 +2,7 @@ package sbt.incrementalcompiler
 
 import sbt.{ ClasspathOptions, ScalaInstance }
 import sbt.compiler.{ CompilerCache, CompilerInterfaceProvider }
-import sbt.incrementalcompiler.api.{ AnalyzingCompiler, Output }
+import sbt.incrementalcompiler.api.{ AnalyzingCompiler, Output, SingleOutput }
 
 import xsbti.AnalysisCallback
 import xsbti.compile.{ DependencyChanges }
@@ -45,7 +45,8 @@ class JavaCompiler(scalaInstance: ScalaInstance) extends JavaAnalyzingCompiler(E
  */
 class ScalaAnalyzingCompiler(callback: AnalysisCallback, scalaInstance: ScalaInstance, provider: CompilerInterfaceProvider) extends AnalyzingCompiler {
 
-  val classpathOptions = ClasspathOptions.auto
+  //val classpathOptions = ClasspathOptions.auto
+  val classpathOptions = ClasspathOptions(true, true, true, true, false)
   val actualAnalyzingCompiler = new sbt.compiler.AnalyzingCompiler(scalaInstance, provider, classpathOptions)
   val emptyChanges = new DependencyChanges {
     val isEmpty = true
@@ -55,16 +56,26 @@ class ScalaAnalyzingCompiler(callback: AnalysisCallback, scalaInstance: ScalaIns
   val cache = CompilerCache(10)
 
   override def compile(sources: Array[File], classpath: Array[File], output: Output, options: Array[String], reporters: api.Reporters): Unit = {
-    actualAnalyzingCompiler.compile(
-      sources,
+    val o = output match { case o: SingleOutput => o.outputDirectory }
+    actualAnalyzingCompiler.apply(sources,
       emptyChanges,
+      classpath,
+      o,
       options,
-      output,
       callback,
-      reporters.compileReporter,
+      100,
       cache,
-      reporters.logger,
-      Some(reporters.progress))
+      reporters.logger)
+    // actualAnalyzingCompiler.compile(
+    //   sources,
+    //   emptyChanges,
+    //   options,
+    //   output,
+    //   callback,
+    //   reporters.compileReporter,
+    //   cache,
+    //   reporters.logger,
+    //   Some(reporters.progress))
 
   }
 }
@@ -73,3 +84,4 @@ class ScalaAnalyzingCompiler(callback: AnalysisCallback, scalaInstance: ScalaIns
  * A Scala compiler without callback.
  */
 class ScalaCompiler(scalaInstance: ScalaInstance, provider: CompilerInterfaceProvider) extends ScalaAnalyzingCompiler(EmptyAnalysisCallback, scalaInstance, provider)
+

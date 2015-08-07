@@ -2,7 +2,7 @@ import sbt._
 import Keys._
 
 object Dependencies {
-  val bootstrapSbtVersion = "0.13.8"
+  val bootstrapSbtVersion = "0.13.10-SNAPSHOT"
   lazy val ioProj = "org.scala-sbt" % "io" % bootstrapSbtVersion
   lazy val collectionProj = "org.scala-sbt" % "collection" % bootstrapSbtVersion
   lazy val processProj = "org.scala-sbt" % "process" % bootstrapSbtVersion

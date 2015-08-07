@@ -1,7 +1,7 @@
 package sbt.incrementalcompiler
 
 case class IncrementalCompilerConfiguration(
-    cache: api.AnalysisCache,
+    cache: AnalysisCache,
     compilers: Compilers,
     incrementalOptions: Map[String, String]) extends api.IncrementalCompilerConfiguration {
 

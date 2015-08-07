@@ -61,7 +61,8 @@ lazy val compileRoot: Project = (project in file(".")).
     compileIncrementalProj,
     compilerProj,
     compilerIntegrationProj,
-    compilerIvyProj).
+    compilerIvyProj,
+    pluginProj).
   settings(
     buildLevelSettings,
     minimalSettings,
@@ -194,4 +195,17 @@ lazy val compilerIvyProj = (project in internalPath / "compile-ivy").
     baseSettings,
     libraryDependencies += ivyProj,
     name := "Compiler Ivy Integration"
+  )
+
+lazy val pluginProj = (project in file("plugin")).
+  settings(
+    sbtPlugin := true,
+    name := "incrementalcompiler-plugin",
+    description := "Implementation of the new compiler API",
+    libraryDependencies += scalaCompiler.value
+  ).
+  dependsOn(
+    compilerProj,
+    compilerIvyProj,
+    compilerIntegrationProj
   )
