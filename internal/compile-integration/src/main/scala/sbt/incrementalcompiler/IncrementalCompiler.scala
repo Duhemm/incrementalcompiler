@@ -8,7 +8,9 @@ class IncrementalCompiler(cache: AnalysisCache,
     incrementalOptions: Map[String, String]) extends api.IncrementalCompiler {
 
 
-  def compile(options: api.InputOptions, reporters: api.Reporters): IncrementalCompilationResult = {
+  def compile(_options: api.InputOptions, reporters: api.Reporters): IncrementalCompilationResult = {
+
+    val options = _options.asInstanceOf[InputOptions]
 
     val scalac = compilers.scalac.actualAnalyzingCompiler
     val javac = compilers.javac.compiler
@@ -27,7 +29,7 @@ class IncrementalCompiler(cache: AnalysisCache,
         options = options.scalacArgs,
         javacOptions = options.javacArgs,
         previousAnalysis = cache.previousAnalysis,
-        previousSetup = None,
+        previousSetup = Some(options.compileSetup),
         analysisMap = f => cache.lookup(f),
         definesClass = sbt.inc.Locate.definesClass _,
         reporter = reporters.compileReporter,

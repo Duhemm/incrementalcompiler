@@ -173,7 +173,7 @@ lazy val compilePersistProj = (project in internalPath / "compile-persist").
 
 // sbt-side interface to compiler.  Calls compiler-side interface reflectively
 lazy val compilerProj = (project in file("compile")).
-  dependsOn(interfaceProj % "compile;test->test", classpathProj, apiProj, classfileProj).
+  dependsOn(compileIncrementalProj, interfaceProj % "compile;test->test", classpathProj, apiProj, classfileProj).
   settings(
     testedBaseSettings,
     name := "Compile",

@@ -56,7 +56,8 @@ object CompilerPlugin extends AutoPlugin {
         val scalacArgs = scalacOptions.value
         val javacArgs = javacOptions.value
 
-        val inOpts = sbt.incrementalcompiler.InputOptions(order, classpath.toArray, srcs.toArray, output, scalacArgs.toArray, javacArgs.toArray)
+        val compileSetup = new sbt.CompileSetup(output, new sbt.CompileOptions(scalacArgs, javacArgs), instance.version, order, true)
+        val inOpts = sbt.incrementalcompiler.InputOptions(order, classpath.toArray, srcs.toArray, output, scalacArgs.toArray, javacArgs.toArray, compileSetup)
 
         // 5. Reporters
         val reporters = sbt.incrementalcompiler.Reporters(XXX.DummyLogger, XXX.DummyReporter, XXX.DummyProgress)
@@ -71,7 +72,6 @@ object CompilerPlugin extends AutoPlugin {
 
         // 7. Cache the result
         val setup: sbt.Compiler.IncSetup = (compileIncSetup in Compile).value
-        val compileSetup = new sbt.CompileSetup(output, new sbt.CompileOptions(scalacArgs, javacArgs), instance.version, order, true)
 
         if (hasModified) {
           println("$" * 181)
