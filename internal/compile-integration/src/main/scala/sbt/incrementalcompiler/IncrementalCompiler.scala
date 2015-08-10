@@ -37,9 +37,7 @@ class IncrementalCompiler(cache: AnalysisCache,
         skip = false,
         incrementalCompilerOptions = incOptions)(reporters.logger)
 
-    cache.somethingAwesome(analysis)
-
-    IncrementalCompilationResult(reporters.compileReporter.problems, hasModified)
+    IncrementalCompilationResult(analysis, reporters.compileReporter.problems, hasModified)
   }
 
 }

@@ -7,6 +7,9 @@ import xsbti.Problem
  */
 abstract class IncrementalCompilationResult {
 
+  /** The analysis generated during compilation */
+  def analysis: Analysis
+
   /** The messages logged during compilation. */
   def problems: Array[Problem]
 

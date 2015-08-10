@@ -48,24 +48,28 @@ class ScalaAnalyzingCompiler(callback: AnalysisCallback, scalaInstance: ScalaIns
   //val classpathOptions = ClasspathOptions.auto
   val classpathOptions = ClasspathOptions(true, true, true, true, false)
   val actualAnalyzingCompiler = new sbt.compiler.AnalyzingCompiler(scalaInstance, provider, classpathOptions)
-  val emptyChanges = new DependencyChanges {
-    val isEmpty = true
-    val modifiedBinaries = Array[File]()
-    val modifiedClasses = Array[String]()
-  }
+  // val emptyChanges = new DependencyChanges {
+  //   val isEmpty = true
+  //   val modifiedBinaries = Array[File]()
+  //   val modifiedClasses = Array[String]()
+  // }
   val cache = CompilerCache(10)
 
   override def compile(sources: Array[File], classpath: Array[File], output: Output, options: Array[String], reporters: api.Reporters): Unit = {
-    val o = output match { case o: SingleOutput => o.outputDirectory }
-    actualAnalyzingCompiler.apply(sources,
-      emptyChanges,
-      classpath,
-      o,
-      options,
-      callback,
-      100,
-      cache,
-      reporters.logger)
+
+    ???
+
+    // val o = output match { case o: SingleOutput => o.outputDirectory }
+    // actualAnalyzingCompiler.apply(sources,
+    //   emptyChanges,
+    //   classpath,
+    //   o,
+    //   options,
+    //   callback,
+    //   100,
+    //   cache,
+    //   reporters.logger)
+
     // actualAnalyzingCompiler.compile(
     //   sources,
     //   emptyChanges,

@@ -7,6 +7,6 @@ case class InputOptions(compileOrder: CompileOrder,
   classpath: Array[File],
   sources: Array[File],
   output: api.Output,
-  javacArgs: Array[String],
   scalacArgs: Array[String],
+  javacArgs: Array[String],
   compileSetup: sbt.CompileSetup) extends api.InputOptions

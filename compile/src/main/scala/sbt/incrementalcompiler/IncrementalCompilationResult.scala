@@ -1,8 +1,9 @@
 package sbt.incrementalcompiler
 
 import xsbti.Problem
-import api.Analysis
+import sbt.inc.Analysis
 
 case class IncrementalCompilationResult(
+  analysis: Analysis,
   problems: Array[Problem],
   isModified: Boolean) extends api.IncrementalCompilationResult

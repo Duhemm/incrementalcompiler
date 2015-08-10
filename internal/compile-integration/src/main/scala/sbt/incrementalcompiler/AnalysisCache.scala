@@ -11,13 +11,10 @@ class AnalysisCache(private var previousAnalyses: List[Analysis]) extends api.An
   def lookup(cpEntry: File): Option[Analysis] =
     previousAnalyses find (a => a.relations.allProducts contains cpEntry)
 
-  def somethingAwesome(analysis: Analysis): AnalysisCache = {
-    this.previousAnalyses = analysis :: this.previousAnalyses
-    this
-  }
+  def saveX(a: Analysis) = { this.previousAnalyses = a :: this.previousAnalyses ; this }
 
   def save(analysis: api.Analysis): AnalysisCache = analysis match {
-    case a: Analysis => this.previousAnalyses = a :: this.previousAnalyses ; println("Saved an awesome analysis") ; this
+    case a: Analysis => this.previousAnalyses = a :: this.previousAnalyses ; this
     case other       => ???
   }
 
