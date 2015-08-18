@@ -17,7 +17,7 @@ def buildLevelSettings: Seq[Setting[_]] = Seq(
 )
 
 def commonSettings: Seq[Setting[_]] = Seq(
-  scalaVersion := "2.10.5",
+  scalaVersion := "2.11.7",
   // publishArtifact in packageDoc := false,
   resolvers += Resolver.typesafeIvyRepo("releases"),
   resolvers += Resolver.sonatypeRepo("snapshots"),
@@ -115,7 +115,6 @@ lazy val relationProj = (project in internalPath / "relation").
   dependsOn(interfaceProj).
   settings(
     testedBaseSettings,
-    libraryDependencies ++= Seq(processProj),
     name := "Relation"
   )
 

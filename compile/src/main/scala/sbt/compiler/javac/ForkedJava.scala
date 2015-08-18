@@ -2,8 +2,10 @@ package sbt.compiler.javac
 
 import java.io.File
 
+import scala.sys.process.Process
+
 import sbt.IO._
-import sbt.{ IO, Process, Logger }
+import sbt.{ IO, Logger }
 import xsbti.Reporter
 import xsbti.compile.{ ClasspathOptions, ScalaInstance }
 

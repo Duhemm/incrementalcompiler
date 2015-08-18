@@ -4,6 +4,8 @@ package javac
 
 import java.util.StringTokenizer
 
+import scala.sys.process.ProcessLogger
+
 import xsbti._
 import java.io.File
 
@@ -22,10 +24,16 @@ final class JavacLogger(log: sbt.Logger, reporter: Reporter, cwd: File) extends 
 
   private val msgs: ListBuffer[(LogLevel, String)] = new ListBuffer()
 
+  @deprecated("Use `out(s: => String)`.", "0.14")
   def info(s: => String): Unit =
+    out(s)
+  def out(s: => String): Unit =
     synchronized { msgs += ((Info, s)) }
 
+  @deprecated("Use `err(s: => String)`.", "0.14")
   def error(s: => String): Unit =
+    err(s)
+  def err(s: => String): Unit =
     synchronized { msgs += ((Error, s)) }
 
   def buffer[T](f: => T): T = f

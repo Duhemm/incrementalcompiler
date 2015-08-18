@@ -7,6 +7,7 @@ package compiler
 import inc._
 
 import scala.annotation.tailrec
+import scala.sys.process.{ Process, ProcessLogger }
 import java.io.File
 import classpath.ClasspathUtilities
 import classfile.Analyze
@@ -229,9 +230,13 @@ private[sbt] class JavacLogger(log: Logger) extends ProcessLogger {
   private val msgs: ListBuffer[(LogLevel, String)] = new ListBuffer()
 
   def info(s: => String): Unit =
+    out(s)
+  def out(s: => String): Unit =
     synchronized { msgs += ((Info, s)) }
 
   def error(s: => String): Unit =
+    err(s)
+  def err(s: => String): Unit =
     synchronized { msgs += ((Error, s)) }
 
   def buffer[T](f: => T): T = f

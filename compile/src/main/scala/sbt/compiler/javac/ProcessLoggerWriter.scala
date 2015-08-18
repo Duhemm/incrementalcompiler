@@ -1,6 +1,8 @@
 package sbt.compiler.javac
 
-import sbt.{ Level, ProcessLogger }
+import scala.sys.process.ProcessLogger
+
+import sbt.Level
 
 /** Delegates a stream into a process logger. Mimics LoggerWriter, but for the ProcessLogger interface which differs. */
 private class ProcessLoggerWriter(delegate: ProcessLogger, level: Level.Value, nl: String = System.getProperty("line.separator")) extends java.io.Writer {
@@ -28,7 +30,7 @@ private class ProcessLoggerWriter(delegate: ProcessLogger, level: Level.Value, n
     }
   }
   private[this] def log(s: String): Unit = level match {
-    case Level.Warn | Level.Error => delegate.error(s)
-    case Level.Info               => delegate.info(s)
+    case Level.Warn | Level.Error => delegate.err(s)
+    case Level.Info               => delegate.out(s)
   }
 }
