@@ -6,7 +6,7 @@ package internal
 package inc
 
 import xsbti.{ AnalysisCallback, Logger => xLogger, Reporter }
-import xsbti.compile.{ CachedCompiler, CachedCompilerProvider, DependencyChanges, GlobalsCache, CompileProgress, Output }
+import xsbti.compile.{ CachedCompiler, CachedCompilerProvider, DependencyChanges, GlobalsCache, CompileProgress, Output, ScalaCompiler }
 import java.io.File
 import java.net.{ URL, URLClassLoader }
 import sbt.util.Logger
@@ -17,7 +17,7 @@ import sbt.util.Logger
  * the analysis plugin.  Because these call Scala code for a different Scala version than the one used for this class, they must
  * be compiled for the version of Scala being used.
  */
-final class AnalyzingCompiler private (val scalaInstance: xsbti.compile.ScalaInstance, val provider: CompilerInterfaceProvider, val cp: xsbti.compile.ClasspathOptions, onArgsF: Seq[String] => Unit) extends CachedCompilerProvider {
+final class AnalyzingCompiler private (val scalaInstance: xsbti.compile.ScalaInstance, val provider: CompilerInterfaceProvider, val cp: xsbti.compile.ClasspathOptions, onArgsF: Seq[String] => Unit) extends ScalaCompiler with CachedCompilerProvider {
   def this(scalaInstance: xsbti.compile.ScalaInstance, provider: CompilerInterfaceProvider, cp: xsbti.compile.ClasspathOptions) =
     this(scalaInstance, provider, cp, _ => ())
   def this(scalaInstance: ScalaInstance, provider: CompilerInterfaceProvider) = this(scalaInstance, provider, ClasspathOptions.auto)
@@ -33,15 +33,17 @@ final class AnalyzingCompiler private (val scalaInstance: xsbti.compile.ScalaIns
   def apply(sources: Seq[File], changes: DependencyChanges, classpath: Seq[File], singleOutput: File, options: Seq[String], callback: AnalysisCallback, maximumErrors: Int, cache: GlobalsCache, log: Logger): Unit = {
     val arguments = (new CompilerArguments(scalaInstance, cp))(Nil, classpath, None, options)
     val output = CompileOutput(singleOutput)
-    compile(sources, changes, arguments, output, callback, new LoggerReporter(maximumErrors, log, p => p), cache, log, None)
+    compile(sources.toArray, changes, arguments.toArray, output, callback, new LoggerReporter(maximumErrors, log, p => p), cache, log, IgnoreProgress)
   }
 
-  def compile(sources: Seq[File], changes: DependencyChanges, options: Seq[String], output: Output, callback: AnalysisCallback, reporter: Reporter, cache: GlobalsCache, log: Logger, progressOpt: Option[CompileProgress]): Unit =
+  override def compile(sources: Array[File], changes: DependencyChanges, options: Array[String], output: Output, callback: AnalysisCallback, reporter: Reporter, cache: GlobalsCache, log: xLogger, progress: CompileProgress): Unit =
     {
       val cached = cache(options.toArray, output, !changes.isEmpty, this, log, reporter)
-      val progress = progressOpt getOrElse IgnoreProgress
       compile(sources, changes, callback, log, reporter, progress, cached)
     }
+
+  override def compile(sources: Array[File], changes: DependencyChanges, callback: AnalysisCallback, log: xLogger, reporter: Reporter, progress: CompileProgress, compiler: CachedCompiler): Unit =
+    compile(sources: Seq[File], changes, callback, log: Logger, reporter, progress, compiler)
 
   def compile(sources: Seq[File], changes: DependencyChanges, callback: AnalysisCallback, log: Logger, reporter: Reporter, progress: CompileProgress, compiler: CachedCompiler): Unit = {
     onArgsF(compiler.commandArguments(sources.toArray))

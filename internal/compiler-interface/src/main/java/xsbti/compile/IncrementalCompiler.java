@@ -30,13 +30,13 @@ import java.io.File;
 *    ii. Arrays are treated as immutable.
 *    iii. No value is ever null.
 */
-public interface IncrementalCompiler<Analysis, ScalaCompiler>
+public interface IncrementalCompiler<Analysis>
 {
 	/**
 	* Performs an incremental compilation as configured by `in`.
 	* The returned Analysis should be provided to compilations depending on the classes from this compilation.
 	*/
-	Analysis compile(Inputs<Analysis, ScalaCompiler> in, Logger log);
+	Analysis compile(Inputs<Analysis> in, Logger log);
 
 	/**
 	* Creates a compiler instance that can be used by the `compile` method.

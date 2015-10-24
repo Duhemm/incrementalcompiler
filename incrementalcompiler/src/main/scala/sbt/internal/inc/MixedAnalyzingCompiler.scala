@@ -18,7 +18,7 @@ import sbt.util.Logger
 
 /** An instance of an analyzing compiler that can run both javac + scalac. */
 final class MixedAnalyzingCompiler(
-  val scalac: AnalyzingCompiler,
+  val scalac: ScalaCompiler,
   val javac: AnalyzingJavaCompiler,
   val config: CompileConfiguration,
   val log: Logger
@@ -49,7 +49,7 @@ final class MixedAnalyzingCompiler(
         val sources = if (order == Mixed) incSrc else scalaSrcs
         val arguments = cArgs(Nil, absClasspath, None, options.options)
         timed("Scala compilation", log) {
-          compiler.compile(sources, changes, arguments, output, callback, reporter, config.cache, log, progress)
+          compiler.compile(sources.toArray, changes, arguments.toArray, output, callback, reporter, config.cache, log, progress getOrElse IgnoreProgress)
         }
       }
     // Compiles the Java code necessary.  All analysis code is included in this method.
@@ -100,7 +100,7 @@ final class MixedAnalyzingCompiler(
 object MixedAnalyzingCompiler {
 
   def makeConfig(
-    scalac: AnalyzingCompiler,
+    scalac: xsbti.compile.ScalaCompiler,
     javac: xsbti.compile.JavaCompiler,
     sources: Seq[File],
     classpath: Seq[File],
@@ -148,7 +148,7 @@ object MixedAnalyzingCompiler {
     previousSetup: Option[CompileSetup],
     analysis: File => Option[Analysis],
     definesClass: DefinesClass,
-    compiler: AnalyzingCompiler,
+    compiler: xsbti.compile.ScalaCompiler,
     javac: xsbti.compile.JavaCompiler,
     reporter: Reporter,
     skip: Boolean,

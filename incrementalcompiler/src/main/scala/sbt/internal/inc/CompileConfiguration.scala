@@ -35,7 +35,7 @@ final class CompileConfiguration(
   val getAnalysis: File => Option[Analysis],
   val definesClass: DefinesClass,
   val reporter: Reporter,
-  val compiler: AnalyzingCompiler,
+  val compiler: xsbti.compile.ScalaCompiler,
   val javac: xsbti.compile.JavaCompiler,
   val cache: GlobalsCache,
   val incOptions: IncOptions

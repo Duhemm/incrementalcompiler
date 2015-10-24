@@ -7,7 +7,7 @@ import sbt.internal.inc.javac.AnalyzingJavaCompiler
 import Locate._
 import xsbti.Logger
 import xsbti.api.Source
-import xsbti.compile.{ ClasspathOptions => XClasspathOptions, ScalaInstance => XScalaInstance }
+import xsbti.compile.{ ClasspathOptions => XClasspathOptions, ScalaInstance => XScalaInstance, ScalaCompiler }
 import xsbti.compile.CompileOrder._
 import xsbti.compile.DefinesClass
 import xsbti.{ Reporter, Logger, Maybe }
@@ -24,9 +24,9 @@ import sbt.internal.io.Using
 /**
  * An implementation of the incremental compiler that can compile inputs and dump out source dependency analysis.
  */
-object IC extends IncrementalCompiler[Analysis, AnalyzingCompiler] {
+object IC extends IncrementalCompiler[Analysis] {
 
-  override def compile(in: Inputs[Analysis, AnalyzingCompiler], log: Logger): Analysis =
+  override def compile(in: Inputs[Analysis], log: Logger): Analysis =
     {
       val setup = in.setup; import setup._
       val options = in.options; import options.{ options => scalacOptions, _ }
@@ -111,7 +111,7 @@ object IC extends IncrementalCompiler[Analysis, AnalyzingCompiler] {
    *          whether or not any file were modified.
    */
   def incrementalCompile(
-    scalac: AnalyzingCompiler,
+    scalac: ScalaCompiler,
     javac: xsbti.compile.JavaCompiler,
     sources: Seq[File],
     classpath: Seq[File],
