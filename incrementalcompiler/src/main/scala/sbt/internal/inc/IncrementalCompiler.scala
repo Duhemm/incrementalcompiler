@@ -26,7 +26,7 @@ import sbt.internal.io.Using
  */
 object IC extends IncrementalCompiler[Analysis] {
 
-  override def compile(in: Inputs[Analysis], log: Logger): Analysis =
+  override def compile(in: Inputs, log: Logger): Analysis =
     {
       val setup = in.setup; import setup._
       val options = in.options; import options.{ options => scalacOptions, _ }
@@ -120,9 +120,9 @@ object IC extends IncrementalCompiler[Analysis] {
     progress: Option[CompileProgress] = None,
     options: Seq[String] = Nil,
     javacOptions: Seq[String] = Nil,
-    previousAnalysis: Analysis,
+    previousAnalysis: xsbti.compile.Analysis,
     previousSetup: Option[CompileSetup],
-    analysisMap: File => Option[Analysis] = { _ => None },
+    analysisMap: File => Option[xsbti.compile.Analysis] = { _ => None },
     definesClass: Locate.DefinesClass = Locate.definesClass _,
     reporter: Reporter,
     compileOrder: CompileOrder = Mixed,

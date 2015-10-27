@@ -7,6 +7,7 @@ package inc
 
 import xsbti.api.{ ExternalDependency, InternalDependency, Source }
 import xsbti.api.DependencyContext._
+import xsbti.compile.{ Stamps, APIs, Relations, SourceInfos }
 import java.io.File
 import sbt.internal.util.Relation
 
@@ -25,7 +26,7 @@ import sbt.internal.util.Relation
  * These transformations are complicated by the fact that internal dependencies are expressed as source file -> source file,
  * but external dependencies are expressed as source file -> fully-qualified class name.
  */
-trait Analysis {
+trait Analysis extends xsbti.compile.Analysis {
   val stamps: Stamps
   val apis: APIs
   /** Mappings between sources, classes, and binaries. */

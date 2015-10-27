@@ -9,6 +9,8 @@ import java.io.File
 import sbt.io.IO
 import sbt.internal.io.Using
 
+import xsbti.compile.CompileSetup
+
 object FileBasedStore {
   def apply(file: File): AnalysisStore = new AnalysisStore {
     def set(analysis: Analysis, setup: CompileSetup): Unit = {

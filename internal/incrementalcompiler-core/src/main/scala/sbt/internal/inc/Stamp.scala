@@ -10,39 +10,41 @@ import Stamp.getStamp
 import scala.util.matching.Regex
 import sbt.io.{ Hash => IOHash }
 
-trait ReadStamps {
-  /** The Stamp for the given product at the time represented by this Stamps instance.*/
-  def product(prod: File): Stamp
-  /** The Stamp for the given source file at the time represented by this Stamps instance.*/
-  def internalSource(src: File): Stamp
-  /** The Stamp for the given binary dependency at the time represented by this Stamps instance.*/
-  def binary(bin: File): Stamp
-}
+// trait ReadStamps {
+//   /** The Stamp for the given product at the time represented by this Stamps instance.*/
+//   def product(prod: File): Stamp
+//   /** The Stamp for the given source file at the time represented by this Stamps instance.*/
+//   def internalSource(src: File): Stamp
+//   /** The Stamp for the given binary dependency at the time represented by this Stamps instance.*/
+//   def binary(bin: File): Stamp
+// }
 
-/** Provides information about files as they were at a specific time.*/
-trait Stamps extends ReadStamps {
-  def allInternalSources: collection.Set[File]
-  def allBinaries: collection.Set[File]
-  def allProducts: collection.Set[File]
+// /** Provides information about files as they were at a specific time.*/
+// trait Stamps extends ReadStamps {
+//   def allInternalSources: collection.Set[File]
+//   def allBinaries: collection.Set[File]
+//   def allProducts: collection.Set[File]
 
-  def sources: Map[File, Stamp]
-  def binaries: Map[File, Stamp]
-  def products: Map[File, Stamp]
-  def classNames: Map[File, String]
+//   def sources: Map[File, Stamp]
+//   def binaries: Map[File, Stamp]
+//   def products: Map[File, Stamp]
+//   def classNames: Map[File, String]
 
-  def className(bin: File): Option[String]
+//   def className(bin: File): Option[String]
 
-  def markInternalSource(src: File, s: Stamp): Stamps
-  def markBinary(bin: File, className: String, s: Stamp): Stamps
-  def markProduct(prod: File, s: Stamp): Stamps
+//   def markInternalSource(src: File, s: Stamp): Stamps
+//   def markBinary(bin: File, className: String, s: Stamp): Stamps
+//   def markProduct(prod: File, s: Stamp): Stamps
 
-  def filter(prod: File => Boolean, removeSources: Iterable[File], bin: File => Boolean): Stamps
+//   def filter(prod: File => Boolean, removeSources: Iterable[File], bin: File => Boolean): Stamps
 
-  def ++(o: Stamps): Stamps
-  def groupBy[K](prod: Map[K, File => Boolean], sourcesGrouping: File => K, bin: Map[K, File => Boolean]): Map[K, Stamps]
-}
+//   def ++(o: Stamps): Stamps
+//   def groupBy[K](prod: Map[K, File => Boolean], sourcesGrouping: File => K, bin: Map[K, File => Boolean]): Map[K, Stamps]
+// }
 
-sealed trait Stamp {
+import xsbti.compile.{ ReadStamps, Stamps }
+
+sealed trait Stamp extends xsbti.compile.Stamp {
   override def equals(other: Any): Boolean = other match {
     case o: Stamp => Stamp.equivStamp.equiv(this, o)
     case _        => false
@@ -108,7 +110,7 @@ object Stamp {
   def getStamp(map: Map[File, Stamp], src: File): Stamp = map.getOrElse(src, notPresent)
 }
 
-object Stamps {
+object StampsHelper {
   /**
    * Creates a ReadStamps instance that will calculate and cache the stamp for sources and binaries
    * on the first request according to the provided `srcStamp` and `binStamp` functions.  Each

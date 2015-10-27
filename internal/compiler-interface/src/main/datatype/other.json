@@ -440,6 +440,52 @@
 					"type": "xsbti.api.DependencyContext"
 				}
 			]
+		},
+		{
+			"name": "Product",
+			"namespace": "xsbti.api",
+			"target": "Java",
+			"type": "record",
+			"fields": [
+				{
+					"name": "classfile",
+					"type": "java.io.File"
+				},
+				{
+					"name": "classname",
+					"type": "String"
+				},
+				{
+					"name": "stamp",
+					"type": "Stamp"
+				}
+			]
+		},
+		{
+			"name": "BinaryDependency",
+			"namespace": "xsbti.api",
+			"target": "Java",
+			"type": "record",
+			"fields": [
+				{
+					"name": "binaryFile",
+					"type": "java.io.File"
+				},
+				{
+					"name": "classname",
+					"type": "String"
+				},
+				{
+					"name": "stamp",
+					"type": "Stamp"
+				}
+			]
+		},
+		{
+			"name": "Stamp",
+			"namespace": "xsbti.api",
+			"target": "Java",
+			"type": "protocol"
 		}
 	]
 }

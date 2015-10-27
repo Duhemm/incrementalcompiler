@@ -7,7 +7,7 @@ import xsbti.Maybe;
 import xsbti.Reporter;
 
 /** Configures incremental recompilation. */
-public interface Setup<Analysis>
+public interface Setup
 {
 	/** Provides the Analysis for the given classpath entry.*/
 	Maybe<Analysis> analysisMap(File file);

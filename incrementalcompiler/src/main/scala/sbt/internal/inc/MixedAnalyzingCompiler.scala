@@ -47,7 +47,7 @@ final class MixedAnalyzingCompiler(
     def compileScala(): Unit =
       if (scalaSrcs.nonEmpty) {
         val sources = if (order == Mixed) incSrc else scalaSrcs
-        val arguments = cArgs(Nil, absClasspath, None, options.options)
+        val arguments = cArgs(Nil, absClasspath, None, scalacOptions)
         timed("Scala compilation", log) {
           compiler.compile(sources.toArray, changes, arguments.toArray, output, callback, reporter, config.cache, log, progress getOrElse IgnoreProgress)
         }
@@ -57,7 +57,7 @@ final class MixedAnalyzingCompiler(
       if (javaSrcs.nonEmpty) {
         // Runs the analysis portion of Javac.
         timed("Java compile + analysis", log) {
-          javac.compile(javaSrcs, options.javacOptions.toArray[String], output, callback, reporter, log, progress)
+          javac.compile(javaSrcs, javacOptions, output, callback, reporter, log, progress)
         }
       }
     // TODO - Maybe on "Mixed" we should try to compile both Scala + Java.
@@ -107,7 +107,7 @@ object MixedAnalyzingCompiler {
     output: Output,
     cache: GlobalsCache,
     progress: Option[CompileProgress] = None,
-    options: Seq[String] = Nil,
+    scalacOptions: Seq[String] = Nil,
     javacOptions: Seq[String] = Nil,
     previousAnalysis: Analysis,
     previousSetup: Option[CompileSetup],
@@ -119,7 +119,7 @@ object MixedAnalyzingCompiler {
     incrementalCompilerOptions: IncOptions
   ): CompileConfiguration =
     {
-      val compileSetup = new CompileSetup(output, new CompileOptions(options, javacOptions),
+      val compileSetup = new CompileSetup(output, scalacOptions.toArray, javacOptions.toArray,
         scalac.scalaInstance.actualVersion, compileOrder, incrementalCompilerOptions.nameHashing)
       config(
         sources,
@@ -167,7 +167,7 @@ object MixedAnalyzingCompiler {
     val absClasspath = classpath.map(_.getAbsoluteFile)
     val apiOption = (api: Either[Boolean, Source]) => api.right.toOption
     val cArgs = new CompilerArguments(compiler.scalaInstance, compiler.cp)
-    val searchClasspath = explicitBootClasspath(options.options) ++ withBootclasspath(cArgs, absClasspath)
+    val searchClasspath = explicitBootClasspath(scalacOptions) ++ withBootclasspath(cArgs, absClasspath)
     (searchClasspath, Locate.entry(searchClasspath, definesClass))
   }
 

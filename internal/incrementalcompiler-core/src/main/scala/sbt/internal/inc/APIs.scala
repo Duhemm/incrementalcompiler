@@ -7,40 +7,13 @@ package inc
 
 import xsbti.api.Source
 import java.io.File
-import APIs.getAPI
+import APIsHelper.getAPI
 import xsbti.api._internalOnly_NameHashes
+import xsbti.compile.APIs
 import scala.util.Sorting
 import xsbt.api.SameAPI
 
-trait APIs {
-  /**
-   * The API for the source file `src` at the time represented by this instance.
-   * This method returns an empty API if the file had no API or is not known to this instance.
-   */
-  def internalAPI(src: File): Source
-  /**
-   * The API for the external class `ext` at the time represented by this instance.
-   * This method returns an empty API if the file had no API or is not known to this instance.
-   */
-  def externalAPI(ext: String): Source
-
-  def allExternals: collection.Set[String]
-  def allInternalSources: collection.Set[File]
-
-  def ++(o: APIs): APIs
-
-  def markInternalSource(src: File, api: Source): APIs
-  def markExternalAPI(ext: String, api: Source): APIs
-
-  def removeInternal(remove: Iterable[File]): APIs
-  def filterExt(keep: String => Boolean): APIs
-  @deprecated("OK to remove in 0.14", "0.13.1")
-  def groupBy[K](internal: (File) => K, keepExternal: Map[K, String => Boolean]): Map[K, APIs]
-
-  def internal: Map[File, Source]
-  def external: Map[String, Source]
-}
-object APIs {
+object APIsHelper {
   def apply(internal: Map[File, Source], external: Map[String, Source]): APIs = new MAPIs(internal, external)
   def empty: APIs = apply(Map.empty, Map.empty)
 

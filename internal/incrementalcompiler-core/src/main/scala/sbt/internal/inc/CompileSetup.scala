@@ -5,44 +5,46 @@ package sbt
 package internal
 package inc
 
-import xsbti.compile.{ CompileOrder, Output => APIOutput, SingleOutput, MultipleOutput }
+import xsbti.compile.{ CompileOrder, CompileSetup, Output => APIOutput, SingleOutput, MultipleOutput }
 import java.io.File
 
 // this class exists because of Scala's restriction on implicit parameter search.
 //  We cannot require an implicit parameter Equiv[Seq[String]] to construct Equiv[CompileSetup]
 //    because complexity(Equiv[Seq[String]]) > complexity(Equiv[CompileSetup])
 //     (6 > 4)
-final class CompileOptions(val options: Seq[String], val javacOptions: Seq[String]) {
-  override def toString = s"CompileOptions(scalac=$options, javac=$javacOptions)"
-}
-final class CompileSetup(val output: APIOutput, val options: CompileOptions, val compilerVersion: String,
-  val order: CompileOrder, val nameHashing: Boolean) {
-  @deprecated("Use the other overloaded variant of the constructor that takes `nameHashing` value, instead.", "0.13.2")
-  def this(output: APIOutput, options: CompileOptions, compilerVersion: String, order: CompileOrder) = {
-    this(output, options, compilerVersion, order, false)
-  }
-  override def toString = s"""CompileSetup(
-       |  options = $options
-       |  compilerVersion = $compilerVersion
-       |  order = $order
-       |  nameHashing = $nameHashing
-       |  output = $output
-       |)""".stripMargin
-}
+// final class CompileOptions(val options: Seq[String], val javacOptions: Seq[String]) {
+//   override def toString = s"CompileOptions(scalac=$options, javac=$javacOptions)"
+// }
+// final class CompileSetup(val output: APIOutput, val options: CompileOptions, val compilerVersion: String,
+//   val order: CompileOrder, val nameHashing: Boolean) extends xsbti.compile.CompileSetup {
+//   @deprecated("Use the other overloaded variant of the constructor that takes `nameHashing` value, instead.", "0.13.2")
+//   def this(output: APIOutput, options: CompileOptions, compilerVersion: String, order: CompileOrder) = {
+//     this(output, options, compilerVersion, order, false)
+//   }
+//   override def toString = s"""CompileSetup(
+//        |  options = $options
+//        |  compilerVersion = $compilerVersion
+//        |  order = $order
+//        |  nameHashing = $nameHashing
+//        |  output = $output
+//        |)""".stripMargin
+// }
 
-object CompileSetup {
+object EquivCompileSetup {
   // Equiv[CompileOrder.Value] dominates Equiv[CompileSetup]
-  implicit def equivCompileSetup(implicit equivOutput: Equiv[APIOutput], equivOpts: Equiv[CompileOptions], equivComp: Equiv[String] /*, equivOrder: Equiv[CompileOrder]*/ ): Equiv[CompileSetup] = new Equiv[CompileSetup] {
+  implicit def equivCompileSetup(implicit equivOutput: Equiv[APIOutput], equivComp: Equiv[String] /*, equivOrder: Equiv[CompileOrder]*/ ): Equiv[CompileSetup] = new Equiv[CompileSetup] {
     def equiv(a: CompileSetup, b: CompileSetup) = {
       // For some reason, an Equiv[Nothing] or some such is getting injected into here now, and borking all our results.
       // We hardcode these to use the Equiv defined in this class.
-      def sameOutput = CompileSetup.equivOutput.equiv(a.output, b.output)
-      def sameOptions = CompileSetup.equivOpts.equiv(a.options, b.options)
-      def sameCompiler = equivComp.equiv(a.compilerVersion, b.compilerVersion)
+      def sameOutput = EquivCompileSetup.equivOutput.equiv(a.output, b.output)
+      def sameScalacOptions = a.scalacOptions sameElements b.scalacOptions
+      def sameJavacOptions = a.javacOptions sameElements b.javacOptions
+      def sameCompiler = equivComp.equiv(a.scalaVersion, b.scalaVersion)
       def sameOrder = a.order == b.order
       def sameNameHasher = a.nameHashing == b.nameHashing
       sameOutput &&
-        sameOptions &&
+        sameScalacOptions &&
+        sameJavacOptions &&
         sameCompiler &&
         sameOrder && // equivOrder.equiv(a.order, b.order)
         sameNameHasher
@@ -66,12 +68,12 @@ object CompileSetup {
         false
     }
   }
-  implicit val equivOpts: Equiv[CompileOptions] = new Equiv[CompileOptions] {
-    def equiv(a: CompileOptions, b: CompileOptions) = {
-      (a.options sameElements b.options) &&
-        (a.javacOptions sameElements b.javacOptions)
-    }
-  }
+  // implicit val equivOpts: Equiv[CompileOptions] = new Equiv[CompileOptions] {
+  //   def equiv(a: CompileOptions, b: CompileOptions) = {
+  //     (a.options sameElements b.options) &&
+  //       (a.javacOptions sameElements b.javacOptions)
+  //   }
+  // }
   implicit val equivCompilerVersion: Equiv[String] = new Equiv[String] {
     def equiv(a: String, b: String) = a == b
   }

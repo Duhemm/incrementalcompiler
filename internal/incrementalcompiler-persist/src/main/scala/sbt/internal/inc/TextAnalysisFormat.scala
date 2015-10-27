@@ -5,7 +5,7 @@ package inc
 import java.io._
 import sbt.internal.util.Relation
 import xsbti.api.{ Compilation, Source }
-import xsbti.compile.{ MultipleOutput, SingleOutput }
+import xsbti.compile.{ CompileSetup, MultipleOutput, SingleOutput }
 import javax.xml.bind.DatatypeConverter
 
 // Very simple timer for timing repeated code sections.
@@ -276,7 +276,7 @@ object TextAnalysisFormat {
     object Headers {
       val outputMode = "output mode"
       val outputDir = "output directories"
-      val compileOptions = "compile options"
+      val scalacOptions = "compile options"
       val javacOptions = "javac options"
       val compilerVersion = "compiler version"
       val compileOrder = "compile order"
@@ -295,9 +295,9 @@ object TextAnalysisFormat {
 
       writeSeq(out)(Headers.outputMode, mode :: Nil, identity[String])
       writeMap(out)(Headers.outputDir, outputAsMap, { f: File => f.getPath })
-      writeSeq(out)(Headers.compileOptions, setup.options.options, identity[String])
-      writeSeq(out)(Headers.javacOptions, setup.options.javacOptions, identity[String])
-      writeSeq(out)(Headers.compilerVersion, setup.compilerVersion :: Nil, identity[String])
+      writeSeq(out)(Headers.scalacOptions, setup.scalacOptions, identity[String])
+      writeSeq(out)(Headers.javacOptions, setup.javacOptions, identity[String])
+      writeSeq(out)(Headers.compilerVersion, setup.scalaVersion :: Nil, identity[String])
       writeSeq(out)(Headers.compileOrder, setup.order.name :: Nil, identity[String])
       writeSeq(out)(Headers.nameHashing, setup.nameHashing :: Nil, (b: Boolean) => b.toString)
     }
@@ -307,7 +307,7 @@ object TextAnalysisFormat {
       def s2b(s: String): Boolean = s.toBoolean
       val outputDirMode = readSeq(in)(Headers.outputMode, identity[String]).headOption
       val outputAsMap = readMap(in)(Headers.outputDir, s2f, s2f)
-      val compileOptions = readSeq(in)(Headers.compileOptions, identity[String])
+      val scalacOptions = readSeq(in)(Headers.scalacOptions, identity[String])
       val javacOptions = readSeq(in)(Headers.javacOptions, identity[String])
       val compilerVersion = readSeq(in)(Headers.compilerVersion, identity[String]).head
       val compileOrder = readSeq(in)(Headers.compileOrder, identity[String]).head
@@ -333,7 +333,7 @@ object TextAnalysisFormat {
         case None => throw new ReadException("No output mode specified")
       }
 
-      new CompileSetup(output, new CompileOptions(compileOptions, javacOptions), compilerVersion,
+      new CompileSetup(output, scalacOptions.toArray, javacOptions.toArray, compilerVersion,
         xsbti.compile.CompileOrder.valueOf(compileOrder), nameHashing)
     }
   }

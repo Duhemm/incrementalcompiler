@@ -36,7 +36,7 @@ public interface IncrementalCompiler<Analysis>
 	* Performs an incremental compilation as configured by `in`.
 	* The returned Analysis should be provided to compilations depending on the classes from this compilation.
 	*/
-	Analysis compile(Inputs<Analysis> in, Logger log);
+	Analysis compile(Inputs in, Logger log);
 
 	/**
 	* Creates a compiler instance that can be used by the `compile` method.
