@@ -42,6 +42,20 @@ final class IncHandler(directory: File, scriptedLog: Logger) extends BridgeProvi
   def unmanagedJars: List[File] = (directory / "lib" ** "*.jar").get.toList
 
   lazy val commands: Map[String, IncCommand] = Map(
+    "print-classfiles" -> {
+      case (xs, _) =>
+        import scala.sys.process._
+        println("#" * 100)
+        println("Classfiles at " + xs.mkString(" "))
+        (classesDir ** "*.class").get foreach { classfile =>
+          val pkg = classfile.getAbsolutePath.drop(classesDir.getAbsolutePath.length + 1).dropRight(classfile.getName.length + 1).replace("/", ".")
+          val className = classfile.getName.dropRight(6)
+          val cmd = Seq("javap", "-classpath", classesDir.getAbsolutePath, pkg + "." + className)
+          println(cmd mkString " ")
+          println(className + ":\n" + cmd.!!)
+          println("-" * 100)
+        }
+    },
     "print-all-files" -> {
       case (xs, _) =>
         val files = (directory ** "*").get.toList
