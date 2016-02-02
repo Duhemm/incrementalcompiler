@@ -196,6 +196,10 @@
           "doc": [
             "Controls the order in which Java and Scala sources are compiled."
           ]
+        },
+        {
+          "name": "progress",
+          "type": "xsbti.Maybe<xsbti.compile.CompileProgress>"
         }
       ]
     },

@@ -10,7 +10,7 @@ import sbt.util.{ Logger, InterfaceUtil, Level }
 import sbt.util.InterfaceUtil.f1
 import sbt.internal.util.ConsoleLogger
 import xsbti.{ F1, Maybe }
-import xsbti.compile.{ CompileAnalysis, CompileOrder, DefinesClass, IncOptionsUtil, PreviousResult }
+import xsbti.compile.{ CompileAnalysis, CompileOrder, CompileProgress, DefinesClass, IncOptionsUtil, PreviousResult }
 
 class IncrementalCompilerSpec extends BridgeProviderSpecification {
 
@@ -44,7 +44,7 @@ class IncrementalCompilerSpec extends BridgeProviderSpecification {
       val prev = compiler.emptyPreviousResult
       val classesDir = tempDir / "classes"
       val in = compiler.inputs(si.allJars, Array(knownSampleGoodFile), classesDir, Array(), Array(), maxErrors, Array(),
-        CompileOrder.Mixed, cs, setup, prev)
+        CompileOrder.Mixed, Maybe.nothing[CompileProgress], cs, setup, prev)
       val result = compiler.compile(in, log)
       val expectedOuts = List(classesDir / "test" / "pkg" / "Good$.class")
       expectedOuts foreach { f => assert(f.exists, s"$f does not exist.") }
@@ -75,13 +75,13 @@ class IncrementalCompilerSpec extends BridgeProviderSpecification {
       val setup = compiler.setup(analysisMap, dc, skip = false, tempDir / "inc_compile", CompilerCache.fresh, incOptions, reporter, extra)
       val classesDir = tempDir / "classes"
       val in = compiler.inputs(si.allJars, sources, classesDir, Array(), Array(), maxErrors, Array(),
-        CompileOrder.Mixed, cs, setup, prev0)
+        CompileOrder.Mixed, Maybe.nothing[CompileProgress], cs, setup, prev0)
       val result = compiler.compile(in, log)
       val prev = compiler.previousResult(result)
       val analysisMap2 = f1((f: File) => prev.analysis)
       val setup2 = compiler.setup(analysisMap2, dc, skip = false, tempDir / "inc_compile", CompilerCache.fresh, incOptions, reporter, extra)
       val in2 = compiler.inputs(si.allJars, sources, classesDir, Array(), Array(), maxErrors, Array(),
-        CompileOrder.Mixed, cs, setup2, prev)
+        CompileOrder.Mixed, Maybe.nothing[CompileProgress], cs, setup2, prev)
       val result2 = compiler.compile(in2, log)
       assert(!result2.hasModified)
     }
@@ -112,7 +112,7 @@ class IncrementalCompilerSpec extends BridgeProviderSpecification {
       val setup = compiler.setup(analysisMap, dc, skip = false, tempDir / "inc_compile", CompilerCache.fresh, incOptions, reporter, extra)
       val classesDir = tempDir / "classes"
       val in = compiler.inputs(si.allJars, sources, classesDir, Array(), Array(), maxErrors, Array(),
-        CompileOrder.Mixed, cs, setup, prev0)
+        CompileOrder.Mixed, Maybe.nothing[CompileProgress], cs, setup, prev0)
       val result = compiler.compile(in, log)
       //val prev = compiler.previousResult(result)
       fileStore.set(result.analysis match { case a: Analysis => a }, result.setup)
@@ -124,7 +124,7 @@ class IncrementalCompilerSpec extends BridgeProviderSpecification {
       val extra2 = Array(InterfaceUtil.t2(("key", "value2")))
       val setup2 = compiler.setup(analysisMap2, dc, skip = false, tempDir / "inc_compile", CompilerCache.fresh, incOptions, reporter, extra2)
       val in2 = compiler.inputs(si.allJars, sources, classesDir, Array(), Array(), maxErrors, Array(),
-        CompileOrder.Mixed, cs, setup2, prev)
+        CompileOrder.Mixed, Maybe.nothing[CompileProgress], cs, setup2, prev)
       val result2 = compiler.compile(in2, log)
       assert(result2.hasModified)
     }

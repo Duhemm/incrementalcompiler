@@ -40,7 +40,7 @@ class IncrementalCompilerImpl extends IncrementalCompiler {
       val scalac = in.compilers match {
         case Compilers(scalac, _) => scalac
       }
-      incrementalCompile(scalac, javacChosen, sources, classpath, CompileOutput(classesDirectory), cache, None, scalacOptions, javacOptions,
+      incrementalCompile(scalac, javacChosen, sources, classpath, CompileOutput(classesDirectory), cache, m2o(progress), scalacOptions, javacOptions,
         m2o(in.previousResult.analysis),
         m2o(in.previousResult.setup),
         { f => m2o(analysisMap()(f)) },
@@ -146,11 +146,11 @@ class IncrementalCompilerImpl extends IncrementalCompiler {
     new Inputs(compilers, options, setup, pr)
   def inputs(classpath: Array[File], sources: Array[File], classesDirectory: File, scalacOptions: Array[String],
     javacOptions: Array[String], maxErrors: Int, sourcePositionMappers: Array[F1[Position, Maybe[Position]]],
-    order: CompileOrder,
+    order: CompileOrder, progress: Maybe[CompileProgress],
     compilers: XCompilers, setup: Setup, pr: PreviousResult): Inputs =
     inputs(
       new CompileOptions(classpath, sources, classesDirectory, scalacOptions, javacOptions, maxErrors,
-        foldMappers(sourcePositionMappers), order),
+        foldMappers(sourcePositionMappers), order, progress),
       compilers, setup, pr
     )
   def previousResult(result: CompileResult): PreviousResult =

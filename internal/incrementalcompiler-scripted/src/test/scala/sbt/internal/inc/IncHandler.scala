@@ -7,7 +7,7 @@ import sbt.util.Logger
 import sbt.internal.scripted.StatementHandler
 import sbt.util.InterfaceUtil._
 import xsbti.{ F1, Maybe }
-import xsbti.compile.{ CompileAnalysis, CompileOrder, DefinesClass, IncOptionsUtil, PreviousResult, Compilers => XCompilers }
+import xsbti.compile.{ CompileAnalysis, CompileOrder, CompileProgress, DefinesClass, IncOptionsUtil, PreviousResult, Compilers => XCompilers }
 import sbt.io.IO
 import sbt.io.Path._
 
@@ -96,7 +96,7 @@ final class IncHandler(directory: File, scriptedLog: Logger) extends BridgeProvi
       val setup = compiler.setup(analysisMap, dc, skip = false, cacheFile, CompilerCache.fresh, incOptions, reporter, extra)
       val classpath = (si.allJars.toList ++ unmanagedJars).toArray
       val in = compiler.inputs(classpath, scalaSources.toArray, classesDir, Array(), Array(), maxErrors, Array(),
-        CompileOrder.Mixed, cs, setup, prev)
+        CompileOrder.Mixed, Maybe.nothing[CompileProgress], cs, setup, prev)
       val result = compiler.compile(in, log)
       val analysis = result.analysis match { case a: Analysis => a }
       fileStore.set(analysis, result.setup)
