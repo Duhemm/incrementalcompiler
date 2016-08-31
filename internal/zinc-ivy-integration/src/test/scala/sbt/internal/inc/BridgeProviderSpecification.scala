@@ -9,7 +9,7 @@ import sbt.internal.inc.classpath.ClasspathUtilities
 import sbt.internal.librarymanagement.{ JsonUtil, ComponentManager }
 import sbt.io.IO
 import sbt.io.syntax._
-import sbt.librarymanagement.{ ModuleID, UpdateOptions, Resolver, Patterns, FileRepository, DefaultMavenRepository }
+import sbt.librarymanagement.{ ModuleID, UpdateOptions, Resolver, ResolverUtil, Patterns, FileRepository, DefaultMavenRepository }
 import sbt.util.{ Logger, Level }
 import xsbti.{ ComponentProvider, GlobalLock }
 
@@ -21,8 +21,8 @@ abstract class BridgeProviderSpecification extends BaseIvySpecification {
 
   def realLocal: Resolver =
     {
-      val pList = s"$${user.home}/.ivy2/local/${Resolver.localBasePattern}" :: Nil
-      FileRepository("local", Resolver.defaultFileConfiguration, Patterns(pList, pList, false))
+      val pList = Array(s"$${user.home}/.ivy2/local/${ResolverUtil.localBasePattern}")
+      new FileRepository("local", new Patterns(pList, pList, false), ResolverUtil.defaultFileConfiguration)
     }
   override def resolvers: Seq[Resolver] = Seq(realLocal, DefaultMavenRepository)
   private val ivyConfiguration = mkIvyConfiguration(UpdateOptions())
@@ -30,11 +30,11 @@ abstract class BridgeProviderSpecification extends BaseIvySpecification {
   def getCompilerBridge(targetDir: File, log: Logger, scalaVersion: String): File = {
     val instance = scalaInstance(scalaVersion)
     val bridgeId = compilerBridgeId(scalaVersion)
-    val sourceModule = ModuleID(xsbti.ArtifactInfo.SbtOrganization, bridgeId, ComponentCompiler.incrementalVersion, Some("component")).sources()
+    val sourceModule = new ModuleID(xsbti.ArtifactInfo.SbtOrganization, bridgeId, ComponentCompiler.incrementalVersion).withConfigurations(xsbti.Maybe.just("component")).sources()
 
     val raw = new RawCompiler(instance, ClasspathOptionsUtil.auto, log)
     val manager = new ComponentManager(lock, provider(targetDir), None, log)
-    val componentCompiler = new IvyComponentCompiler(raw, manager, ivyConfiguration, sourceModule, log)
+    val componentCompiler = new IvyComponentCompiler(raw, manager, ivyConfiguration, fileToStore, sourceModule, log)
 
     val bridge = componentCompiler.apply()
     val target = targetDir / s"target-bridge-$scalaVersion.jar"
@@ -44,9 +44,9 @@ abstract class BridgeProviderSpecification extends BaseIvySpecification {
 
   def scalaInstance(scalaVersion: String): ScalaInstance = {
     val scalaModule = {
-      val dummyModule = ModuleID(JsonUtil.sbtOrgTemp, "tmp-scala-" + scalaVersion, scalaVersion, Some("compile"))
-      val scalaLibrary = ModuleID(xsbti.ArtifactInfo.ScalaOrganization, xsbti.ArtifactInfo.ScalaLibraryID, scalaVersion, Some("compile"))
-      val scalaCompiler = ModuleID(xsbti.ArtifactInfo.ScalaOrganization, xsbti.ArtifactInfo.ScalaCompilerID, scalaVersion, Some("compile"))
+      val dummyModule = new ModuleID(JsonUtil.sbtOrgTemp, "tmp-scala-" + scalaVersion, scalaVersion).withConfigurations(xsbti.Maybe.just("compile"))
+      val scalaLibrary = new ModuleID(xsbti.ArtifactInfo.ScalaOrganization, xsbti.ArtifactInfo.ScalaLibraryID, scalaVersion).withConfigurations(xsbti.Maybe.just("compile"))
+      val scalaCompiler = new ModuleID(xsbti.ArtifactInfo.ScalaOrganization, xsbti.ArtifactInfo.ScalaCompilerID, scalaVersion).withConfigurations(xsbti.Maybe.just("compile"))
 
       module(dummyModule, Seq(scalaLibrary, scalaCompiler), None)
     }
@@ -55,8 +55,8 @@ abstract class BridgeProviderSpecification extends BaseIvySpecification {
       for {
         conf <- ivyUpdate(scalaModule).configurations
         m <- conf.modules
-        (_, f) <- m.artifacts
-      } yield f
+        artFile <- m.artifacts
+      } yield artFile.get2
 
     def isCompiler(f: File) = f.getName startsWith "scala-compiler-"
     def isLibrary(f: File) = f.getName startsWith "scala-library-"

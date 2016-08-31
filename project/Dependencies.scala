@@ -10,8 +10,8 @@ object Dependencies {
 
   val bootstrapSbtVersion = "0.13.8"
   val ioVersion = "1.0.0-M6"
-  val utilVersion = "0.1.0-M13"
-  val lmVersion = "0.1.0-M11"
+  val utilVersion = "0.1.0-M13-64a648656cd48ff2d5a1e078df1eb2ebf55cd4dd"
+  val lmVersion = "0.1.0-57bdda2222c06aeabe2d7e6a3e425991c3e6702c-SNAPSHOT"
   lazy val sbtIO = "org.scala-sbt" %% "io" % ioVersion
   lazy val utilLogging = "org.scala-sbt" %% "util-logging" % utilVersion
   lazy val utilControl = "org.scala-sbt" %% "util-control" % utilVersion
@@ -32,6 +32,9 @@ object Dependencies {
   lazy val scalaCheck = "org.scalacheck" %% "scalacheck" % "1.13.1"
   lazy val scalatest = "org.scalatest" %% "scalatest" % "2.2.6"
   lazy val junit = "junit" % "junit" % "4.11"
+
+  lazy val sjsonnewScalaJson = "com.eed3si9n" %% "sjson-new-scalajson" % "0.4.1"
+
   def testDependencies = Seq(libraryDependencies ++=
     Seq(
       utilTesting % Test,

@@ -134,7 +134,7 @@ lazy val zincTesting = (project in internalPath / "zinc-testing").
     publishArtifact in Test := false,
     publishArtifact := false,
     libraryDependencies ++= Seq(libraryManagement, utilTesting,
-      scalaCheck, scalatest, junit)
+      scalaCheck, scalatest, junit, sjsonnewScalaJson)
   )
 
 lazy val zincCompile = (project in file("zinc-compile")).
