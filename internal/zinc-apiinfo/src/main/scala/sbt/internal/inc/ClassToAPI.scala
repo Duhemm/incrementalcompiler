@@ -116,7 +116,9 @@ object ClassToAPI {
     }
   }
 
-  def classCanonicalName(c: Class[_]): String = handleMalformedNameOf(c)
+  def classCanonicalName(c: Class[_]): String =
+    Option(c.getCanonicalName) getOrElse { c.getName }
+  // def classCanonicalName(c: Class[_]): String = handleMalformedNameOf(c)
 
   def toDefinitions(cmap: ClassMap)(c: Class[_]): Seq[api.ClassLikeDef] =
     cmap.memo.getOrElseUpdate(classCanonicalName(c), toDefinitions0(c, cmap))
