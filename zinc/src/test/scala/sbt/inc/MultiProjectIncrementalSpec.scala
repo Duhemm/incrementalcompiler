@@ -46,7 +46,7 @@ class MultiProjectIncrementalSpec extends BridgeProviderSpecification {
       val compilerBridge = getCompilerBridge(sub1Directory, noLogger, scalaVersion)
       val si = scalaInstance(scalaVersion, sub1Directory, noLogger)
       val sc = scalaCompiler(si, compilerBridge)
-      val cs = compiler.compilers(si, ClasspathOptionsUtil.boot, None, sc)
+      val cs = compiler.compilers(si, None, sc)
       val prev0 = compiler.emptyPreviousResult
       val cp = si.allJars ++ Array(targetDir, targetDir2, binarySampleFile)
       val lookup = new PerClasspathEntryLookupImpl(
@@ -198,9 +198,8 @@ class MultiProjectIncrementalSpec extends BridgeProviderSpecification {
 
   def scalaCompiler(instance: ScalaInstance, bridgeJar: File): AnalyzingCompiler = {
     val bridgeProvider = ZincUtil.constantBridgeProvider(instance, bridgeJar)
-    val classpath = ClasspathOptionsUtil.boot
     val cache = Some(new ClassLoaderCache(new URLClassLoader(Array())))
-    new AnalyzingCompiler(instance, bridgeProvider, classpath, _ => (), cache)
+    new AnalyzingCompiler(instance, bridgeProvider, _ => (), cache)
   }
 }
 

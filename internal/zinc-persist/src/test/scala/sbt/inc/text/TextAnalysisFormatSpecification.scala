@@ -44,12 +44,14 @@ trait BaseTextAnalysisFormatTest { self: Properties =>
     def getOutputDirectory: java.io.File = new java.io.File(RootFilePath)
   }
 
-  val commonSetup = MiniSetup.of(dummyOutput,
-                                 MiniOptions.of(Array(), Array(), Array()),
-                                 "2.10.4",
-                                 xsbti.compile.CompileOrder.Mixed,
-                                 storeApis,
-                                 Array(t2(("key", "value"))))
+  val commonSetup = MiniSetup.of(
+    dummyOutput,
+    MiniOptions.of(Array(), Array(), Array(), ClasspathOptionsUtil.boot()),
+    "2.10.4",
+    xsbti.compile.CompileOrder.Mixed,
+    storeApis,
+    Array(t2(("key", "value")))
+  )
   val companionStore = new CompanionsStore {
     def getUncaught(): (Map[String, Companions], Map[String, Companions]) = (Map(), Map())
     def get(): Option[(Map[String, Companions], Map[String, Companions])] = Some(getUncaught())
