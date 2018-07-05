@@ -119,7 +119,8 @@ private[sbt] object ZincComponentCompiler {
           val unresolvedLines = unresolvedWarningLines.showLines(uw).mkString("\n")
           val unretrievedMessage = s"The Scala compiler and library could not be retrieved."
           throw new InvalidComponent(s"$unretrievedMessage\n$unresolvedLines")
-        case Right(allArtifacts) =>
+        case Right(report) =>
+          val allArtifacts = report.allFiles
           val isScalaCompiler = (f: File) => isPrefixedWith(f, "scala-compiler-")
           val isScalaLibrary = (f: File) => isPrefixedWith(f, "scala-library-")
           val maybeScalaCompiler = allArtifacts.find(isScalaCompiler)
@@ -271,10 +272,26 @@ private[inc] class ZincComponentCompiler(
               val unretrievedMessage = s"The compiler bridge sources $mod could not be retrieved."
               throw new InvalidComponent(s"$unretrievedMessage\n$unresolvedLines")
 
-            case Right(allArtifacts) =>
-              val (srcs, xsbtiJars) = allArtifacts.partition(_.getName.endsWith("-sources.jar"))
+            case Right(report) =>
+              def isBridgeSources(modReport: ModuleReport): Boolean = {
+                val module = modReport.module
+                module.organization == bridgeSources.organization && module.name == bridgeSources.name && module.revision == bridgeSources.revision
+              }
+              def isSourceJar(f: File): Boolean = f.getName.endsWith("-sources.jar")
+              val bridgeSourcesJars =
+                for {
+                  conf <- report.configurations
+                  mod <- conf.modules if isBridgeSources(mod)
+                  (_, file) <- mod.artifacts if isSourceJar(file)
+                } yield file
+              val bridgeDependencies = report.allFiles.filterNot(isSourceJar)
               val toCompileID = bridgeSources.name
-              AnalyzingCompiler.compileSources(srcs, target, xsbtiJars, toCompileID, compiler, log)
+              AnalyzingCompiler.compileSources(bridgeSourcesJars.distinct,
+                                               target,
+                                               bridgeDependencies,
+                                               toCompileID,
+                                               compiler,
+                                               log)
               manager.define(compilerBridgeId, Seq(target))
           }
         }
@@ -296,21 +313,11 @@ private object ZincLMHelper {
                           module: ModuleDescriptor,
                           retrieveDirectory: File,
                           noSource: Boolean = false,
-                          logger: Logger): Either[UnresolvedWarning, Vector[File]] = {
+                          logger: Logger): Either[UnresolvedWarning, UpdateReport] = {
     val updateConfiguration = defaultUpdateConfiguration(retrieveDirectory, noSource)
     val dependencies = prettyPrintDependency(module)
     logger.info(s"Attempting to fetch $dependencies.")
-    dependencyResolution.update(module, updateConfiguration, warningConf, logger) match {
-      case Left(unresolvedWarning) =>
-        logger.debug(s"Couldn't retrieve module(s) ${prettyPrintDependency(module)}.")
-        Left(unresolvedWarning)
-
-      case Right(updateReport) =>
-        val allFiles = updateReport.allFiles
-        logger.debug(s"Files retrieved for ${prettyPrintDependency(module)}:")
-        logger.debug(allFiles mkString ", ")
-        Right(allFiles)
-    }
+    dependencyResolution.update(module, updateConfiguration, warningConf, logger)
   }
 
   private def defaultUpdateConfiguration(
